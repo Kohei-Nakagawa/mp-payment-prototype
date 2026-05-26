@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MP+ 支払い画面 プロトタイプ v4</title>
+<style>
+  :root {
+    --main: #5C80FF;
+    --sv-main-gradation: linear-gradient(10deg, #5C80FF 15.89%, #A864FF 49.2%, #FF73F1 84.8%);
+    --white: #FFFFFF;
+    --smoke: #C8C8C8;
+    --light-gray: #888888;
+    --dark-gray: #393939;
+    --dark: #282828;
+    --black: #181818;
+    --card-wh8: rgba(255,255,255,0.08);
+    --card-wh16: rgba(255,255,255,0.16);
+    --pink: #FF73F1;
+    --red: #FF596D;
+    --font: -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; font-family: var(--font); color: var(--white); min-height: 100vh; }
+
+  .page-header { padding: 20px 24px 16px; border-bottom: 0.5px solid var(--card-wh16); }
+  .page-header h1 { font-size: 16px; font-weight: 700; }
+  .page-header p { font-size: 12px; color: var(--smoke); margin-top: 4px; }
+
+  .screens-nav { display: flex; overflow-x: auto; border-bottom: 0.5px solid var(--card-wh16); padding: 0 24px; scrollbar-width: none; }
+  .screens-nav::-webkit-scrollbar { display: none; }
+  .nav-btn { flex-shrink: 0; padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--smoke); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+  .nav-btn.active { color: var(--white); border-bottom-color: var(--main); }
+
+  .screens-area { display: flex; justify-content: center; align-items: flex-start; padding: 32px 24px 48px; gap: 24px; flex-wrap: wrap; }
+  .screen { display: none; }
+  .screen.active { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label { font-size: 11px; color: var(--smoke); text-align: center; }
+  .phone { width: 375px; min-height: 812px; background: var(--black); border-radius: 44px; border: 1.5px solid #333; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+  .status-bar { height: 44px; padding: 14px 24px 0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .status-time { font-size: 15px; font-weight: 600; }
+  .status-icons { font-size: 12px; }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; justify-content: center; padding: 12px 24px; flex-shrink: 0; }
+  .step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 1.5px solid var(--light-gray); color: var(--light-gray); }
+  .step-circle.active { background: var(--white); color: var(--black); border-color: var(--white); }
+  .step-circle.done { background: var(--card-wh16); color: var(--smoke); border-color: var(--card-wh16); }
+  .step-label { font-size: 10px; color: var(--light-gray); white-space: nowrap; }
+  .step-label.active { color: var(--white); }
+  .step-line { width: 40px; height: 1px; background: var(--card-wh16); margin-bottom: 14px; }
+
+  .wv-header { height: 52px; display: flex; align-items: center; padding: 0 16px; border-bottom: 0.5px solid var(--card-wh16); flex-shrink: 0; background: var(--black); }
+  .wv-back { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--white); cursor: pointer; background: none; border: none; }
+  .wv-title { flex: 1; text-align: center; font-size: 16px; font-weight: 700; }
+  .wv-spacer { width: 32px; }
+
+  .screen-body { flex: 1; overflow-y: auto; padding: 16px 16px 130px; scrollbar-width: none; }
+  .screen-body::-webkit-scrollbar { display: none; }
+
+  /* Caption */
+  .caption { display: flex; align-items: flex-start; gap: 4px; margin-bottom: 16px; }
+  .caption-icon { font-size: 12px; color: var(--smoke); margin-top: 1px; flex-shrink: 0; }
+  .caption-text { font-size: 12px; color: var(--smoke); line-height: 1.6; }
+
+  /* Item card */
+  .item-card { background: var(--card-wh8); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+  .item-row { display: flex; align-items: center; justify-content: space-between; }
+  .item-left { display: flex; align-items: center; gap: 8px; }
+  .coin { border-radius: 50%; background: #e8a020; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .coin-sm { width: 12px; height: 12px; }
+  .coin-md { width: 16px; height: 16px; }
+  .coin-lg { width: 24px; height: 24px; }
+  .item-name { font-size: 20px; font-weight: 700; }
+  .item-sub { font-size: 12px; color: var(--pink); margin-top: 2px; }
+  .item-price { font-size: 20px; font-weight: 700; }
+
+  .section-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: block; }
+  .divider { border: none; border-top: 0.5px solid var(--card-wh16); margin: 16px 0; }
+
+  /* ポイント利用セクション */
+  .point-section { margin-bottom: 0; }
+  .point-balance-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .point-purchase-link { font-size: 12px; color: var(--main); background: none; border: none; cursor: pointer; }
+  .point-input-row { background: var(--card-wh8); border-radius: 8px; height: 56px; display: flex; align-items: center; padding: 0 14px; border: 1px solid transparent; transition: border-color 0.15s; }
+  .point-input-row:focus-within { border-color: var(--white); }
+  .point-input { flex: 1; background: none; border: none; outline: none; color: var(--white); font-size: 16px; font-family: var(--font); }
+  .point-input::placeholder { color: var(--light-gray); }
+  .use-all-btn { font-size: 12px; color: var(--main); background: none; border: none; cursor: pointer; white-space: nowrap; padding-left: 8px; }
+
+  /* 支払い方法セクション（動的表示） */
+  .payment-method-section { margin-top: 16px; transition: all 0.2s; }
+  .payment-method-section.hidden { display: none; }
+
+  /* ラジオ型支払い方法 */
+  .radio-option { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--card-wh8); border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
+  .radio-option.selected { border-color: var(--white); }
+  .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--light-gray); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .radio-circle.checked { border-color: var(--white); }
+  .radio-circle.checked::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--white); display: block; }
+  .radio-body { flex: 1; }
+  .radio-label { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .radio-sub { font-size: 12px; color: var(--smoke); }
+
+  /* クレカ展開エリア */
+  .card-expand { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--card-wh16); }
+  .card-select { background: var(--dark); border-radius: 10px; padding: 0 14px; height: 48px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 4px; }
+  .card-info { display: flex; align-items: center; gap: 10px; color: var(--smoke); font-size: 13px; }
+  .visa-badge { background: #1a1f71; color: var(--white); font-size: 9px; font-weight: 900; padding: 2px 5px; border-radius: 3px; }
+  .card-arrow { color: var(--white); font-size: 16px; }
+  .add-card-btn { font-size: 13px; color: var(--main); padding: 8px 0; cursor: pointer; background: none; border: none; width: 100%; text-align: left; }
+  .installment-select { background: var(--dark); border-radius: 10px; height: 48px; width: 100%; color: var(--white); font-size: 13px; padding: 0 14px; border: 1px solid transparent; outline: none; appearance: none; cursor: pointer; font-family: var(--font); margin-top: 10px; }
+  .installment-select:focus { border-color: var(--white); }
+  .installment-note { font-size: 11px; color: var(--light-gray); margin-top: 4px; }
+
+  /* 銀行振込説明 */
+  .bank-info { background: var(--dark); border-radius: 10px; padding: 14px; margin-top: 4px; }
+  .bank-info-row { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--smoke); line-height: 1.6; }
+  .bank-info-row:last-child { margin-bottom: 0; }
+
+  /* ポイントのみ確定バナー */
+  .point-only-banner { background: rgba(92,128,255,0.12); border: 1px solid rgba(92,128,255,0.3); border-radius: 10px; padding: 12px 14px; margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+  .point-only-banner-text { font-size: 13px; color: var(--main); font-weight: 500; }
+
+  /* お支払いサマリー */
+  .payment-summary { margin-top: 16px; border-top: 0.5px solid var(--card-wh16); padding-top: 14px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+  .summary-label { font-size: 13px; color: var(--smoke); }
+  .summary-val { font-size: 13px; color: var(--white); display: flex; align-items: center; gap: 4px; }
+  .summary-total-label { font-size: 14px; font-weight: 700; }
+  .summary-total-val { font-size: 18px; font-weight: 700; }
+
+  /* ButtonAreaContainer */
+  .button-area { position: absolute; bottom: 0; left: 0; right: 0; background: var(--black); padding: 8px 16px 32px; border-top: 0.5px solid var(--card-wh16); z-index: 10; }
+  .commercial-btn { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 12px; color: var(--smoke); text-decoration: underline; background: none; border: none; cursor: pointer; width: 100%; margin-bottom: 8px; }
+  .btn-row { display: flex; align-items: center; justify-content: space-between; }
+  .back-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; color: var(--white); cursor: pointer; font-size: 12px; font-weight: 700; padding: 4px 8px; }
+  .back-icon { font-size: 28px; line-height: 1; }
+  .primary-btn { height: 56px; background: var(--white); color: var(--black); border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .primary-btn.full { width: 100%; }
+  .primary-btn.partial { width: 180px; }
+  .primary-btn:disabled { background: var(--dark-gray); color: var(--light-gray); cursor: not-allowed; }
+
+  /* ブリッジ */
+  .bridge-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: flex-end; z-index: 200; border-radius: 44px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .bridge-overlay.open { opacity: 1; pointer-events: all; }
+  .bridge-sheet { background: var(--dark-gray); border-radius: 20px 20px 0 0; padding: 20px 20px 40px; width: 100%; text-align: center; transform: translateY(100%); transition: transform 0.3s ease; }
+  .bridge-overlay.open .bridge-sheet { transform: translateY(0); }
+  .bridge-handle { width: 36px; height: 4px; background: var(--card-wh16); border-radius: 2px; margin: 0 auto 16px; }
+  .bridge-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .bridge-desc { font-size: 12px; color: var(--smoke); line-height: 1.6; margin-bottom: 20px; }
+  .bridge-close { background: var(--card-wh16); border: none; color: var(--white); font-size: 13px; font-weight: 700; padding: 12px 32px; cursor: pointer; border-radius: 8px; }
+
+  /* NoticeModal */
+  .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; border-radius: 44px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-inner { background: var(--sv-main-gradation); padding: 2px; border-radius: 16px; width: calc(100% - 48px); }
+  .modal-content { background: var(--dark-gray); border-radius: 14px; padding: 32px 16px; text-align: center; display: flex; flex-direction: column; gap: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; }
+  .modal-body { font-size: 13px; color: var(--smoke); line-height: 1.7; }
+  .modal-link { font-size: 13px; color: var(--main); }
+  .modal-close { border: 1px solid var(--card-wh16); background: none; color: var(--white); font-size: 14px; font-weight: 700; padding: 12px 40px; cursor: pointer; align-self: center; }
+
+  /* Gift */
+  .tab-row { display: flex; border-bottom: 0.5px solid var(--card-wh16); margin-bottom: 12px; }
+  .tab-item { flex: 1; padding: 12px 0; font-size: 13px; text-align: center; color: var(--light-gray); border-bottom: 2px solid transparent; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; }
+  .tab-item.active { color: var(--white); font-weight: 700; border-bottom-color: var(--white); }
+  .gift-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .gift-item { background: var(--card-wh8); border-radius: 8px; padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border: 1.5px solid transparent; }
+  .gift-item.selected { border-color: var(--main); }
+  .gift-emoji { font-size: 24px; }
+  .gift-name { font-size: 10px; color: var(--smoke); }
+  .gift-pt { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 2px; }
+  .gradient-btn { height: 40px; background: var(--sv-main-gradation); color: var(--white); border: none; font-size: 13px; font-weight: 700; cursor: pointer; padding: 0 20px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>MP+ 支払い画面 プロトタイプ v4</h1>
+  <p>統一文法版 — ポイント残高に応じて支払い方法セクションが動的切替</p>
+</div>
+
+<div class="screens-nav">
+  <button class="nav-btn active" onclick="showScreen('sl',this)">SLチケット<br>購入</button>
+  <button class="nav-btn" onclick="showScreen('store',this)">ストア<br>購入</button>
+  <button class="nav-btn" onclick="showScreen('voice',this)">ボイストレ<br>ポイント購入</button>
+  <button class="nav-btn" onclick="showScreen('point-wv',this)">ポイント購入<br>WebView</button>
+  <button class="nav-btn" onclick="showScreen('gift',this)">ギフト<br>WebView</button>
+</div>
+
+<div class="screens-area">
+
+  <!-- ① SLチケット購入 -->
+  <div id="sl" class="screen active">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="stepper">
+          <div class="step-item"><div class="step-circle done">1</div><div class="step-label">アーティスト選択</div></div>
+          <div class="step-line"></div>
+          <div class="step-item"><div class="step-circle active">2</div><div class="step-label active">お支払い</div></div>
+          <div class="step-line"></div>
+          <div class="step-item"><div class="step-circle">3</div><div class="step-label">完了</div></div>
+        </div>
+        <div class="screen-body">
+          <p style="font-size:16px;text-align:center;margin-bottom:8px">以下の内容でチケットを購入しますか？</p>
+          <div class="caption" style="justify-content:center;margin-bottom:20px">
+            <span class="caption-icon">ℹ</span><span class="caption-text">購入後、キャンセルはできません</span>
+          </div>
+
+          <!-- 商品サマリー -->
+          <div class="item-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="background:#185FA5;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">東京</span>
+              <span style="font-size:14px">新宿ReNY① プレミアム席</span>
+            </div>
+            <div style="font-size:12px;color:var(--smoke);margin-bottom:8px">SUPER LIVE 2026</div>
+            <div style="text-align:right;font-size:22px;font-weight:700">2,000円</div>
+          </div>
+
+          <hr class="divider">
+
+          <!-- ポイント利用セクション -->
+          <div class="point-section">
+            <span class="section-label">ポイント利用</span>
+            <div class="point-balance-row">
+              <span style="font-size:14px;color:var(--smoke)">保有ポイント</span>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span class="coin coin-md"></span><span id="sl-balance-display">10,000</span></div>
+                <button class="point-purchase-link">ポイント購入 ›</button>
+              </div>
+            </div>
+            <div class="point-input-row">
+              <input class="point-input" id="sl-pt-input" type="number" placeholder="（例）500"
+                oninput="onPointInput('sl', 2000, this.value)">
+              <button class="use-all-btn" onclick="useAll('sl', 2000)">すべて使用</button>
+            </div>
+          </div>
+
+          <!-- 支払い方法（動的） -->
+          <div class="payment-method-section" id="sl-method-section">
+            <hr class="divider">
+            <span class="section-label">支払い方法</span>
+            <div class="radio-option selected" id="sl-radio-credit" onclick="selectPayMethod('sl','credit')">
+              <div class="radio-circle checked" id="sl-rc-credit"></div>
+              <div class="radio-body">
+                <div class="radio-label">クレジットカード</div>
+                <div class="radio-sub">不足分をクレカで決済</div>
+                <div class="card-expand">
+                  <div class="card-select">
+                    <div class="card-info"><span class="visa-badge">VISA</span><span>****-****-5444</span></div>
+                    <span class="card-arrow">›</span>
+                  </div>
+                  <button class="add-card-btn" onclick="openBridge('sl-bridge',event)">+ 新しいカードを追加</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ポイントのみバナー -->
+          <div class="point-only-banner" id="sl-point-only-banner" style="display:none">
+            <span style="font-size:16px">✓</span>
+            <span class="point-only-banner-text">ポイントのみで購入できます</span>
+          </div>
+
+          <!-- お支払いサマリー -->
+          <div class="payment-summary">
+            <div class="summary-row">
+              <span class="summary-label">使用ポイント</span>
+              <div class="summary-val"><span class="coin coin-sm"></span><span id="sl-used-display">0</span></div>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">クレカ決済額</span>
+              <span class="summary-val" id="sl-credit-display">2,000円</span>
+            </div>
+            <div class="summary-row" style="margin-top:8px">
+              <span class="summary-total-label">お支払い合計</span>
+              <span class="summary-total-val">2,000円</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-area">
+          <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+          <div class="btn-row">
+            <button class="back-btn"><span class="back-icon">‹</span><span>戻る</span></button>
+            <button class="primary-btn partial" onclick="showModal('modal-sl')">購入確定</button>
+          </div>
+        </div>
+
+        <div class="bridge-overlay" id="sl-bridge" onclick="closeBridgeOnBg(event,'sl-bridge')">
+          <div class="bridge-sheet"><div class="bridge-handle"></div>
+            <div class="bridge-title">💳 カード追加シートを開きます</div>
+            <div class="bridge-desc">sendAppBridgeMessage("openCreateCardSheet") を呼び出し、iOSネイティブが web-view/create-card を開きます。</div>
+            <button class="bridge-close" onclick="closeBridge('sl-bridge')">閉じる</button>
+          </div>
+        </div>
+        <div class="modal-overlay" id="modal-sl">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">購入が完了しました</div>
+            <div class="modal-body">購入したチケットは、チケット管理またはメールにてご確認いただけます。</div>
+            <a class="modal-link">購入したチケット一覧はこちら</a>
+            <button class="modal-close" onclick="closeModal('modal-sl')">閉じる</button>
+          </div></div>
+        </div>
+      </div>
+      <span class="phone-label">SLチケット購入<br>ポイント入力で支払い方法が切り替わります</span>
+    </div>
+  </div>
+
+  <!-- ② ストア購入 -->
+  <div id="store" class="screen">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="wv-header">
+          <button class="wv-back">‹</button>
+          <span class="wv-title" id="store-title">購入内容の確認</span>
+          <span class="wv-spacer"></span>
+        </div>
+        <div class="screen-body">
+          <div id="store-step1">
+            <!-- 商品サマリー -->
+            <div class="item-card">
+              <div style="font-size:12px;color:var(--smoke);margin-bottom:6px">購入商品</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+                <span style="background:#27500A;color:#C0DD97;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700">グッズ</span>
+                <span style="font-size:14px">オリジナルフォトブック A4</span>
+              </div>
+              <div style="text-align:right;font-size:22px;font-weight:700">¥15,000</div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- ポイント利用 -->
+            <div class="point-section">
+              <span class="section-label">ポイント利用</span>
+              <div class="point-balance-row">
+                <span style="font-size:14px;color:var(--smoke)">保有ポイント</span>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span class="coin coin-md"></span>20,000</div>
+                  <button class="point-purchase-link">ポイント購入 ›</button>
+                </div>
+              </div>
+              <div class="point-input-row">
+                <input class="point-input" id="store-pt-input" type="number" placeholder="（例）5000"
+                  oninput="onPointInput('store', 15000, this.value)">
+                <button class="use-all-btn" onclick="useAll('store', 15000)">すべて使用</button>
+              </div>
+            </div>
+
+            <!-- 支払い方法（動的） -->
+            <div class="payment-method-section" id="store-method-section">
+              <hr class="divider">
+              <span class="section-label">支払い方法</span>
+
+              <!-- クレカ -->
+              <div class="radio-option selected" id="store-radio-credit" onclick="selectPayMethod('store','credit')">
+                <div class="radio-circle checked" id="store-rc-credit"></div>
+                <div class="radio-body">
+                  <div class="radio-label">クレジットカード</div>
+                  <div class="radio-sub">不足分をクレカで決済</div>
+                  <div class="card-expand" id="store-card-expand">
+                    <div class="card-select">
+                      <div class="card-info"><span class="visa-badge">VISA</span><span>****-****-5444</span></div>
+                      <span class="card-arrow">›</span>
+                    </div>
+                    <button class="add-card-btn" onclick="openBridge('store-bridge',event)">+ 新しいカードを追加</button>
+                    <select class="installment-select">
+                      <option>一括払い</option>
+                      <option>3回払い</option>
+                      <option>6回払い</option>
+                      <option>12回払い</option>
+                      <option>24回払い</option>
+                    </select>
+                    <div class="installment-note">※分割回数はカード会社により異なります</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 銀行振込 -->
+              <div class="radio-option" id="store-radio-bank" onclick="selectPayMethod('store','bank')">
+                <div class="radio-circle" id="store-rc-bank"></div>
+                <div class="radio-body">
+                  <div class="radio-label">銀行振込</div>
+                  <div class="radio-sub">振込先はご購入後にメールでご確認いただけます</div>
+                  <div class="bank-info" id="store-bank-info" style="display:none">
+                    <div class="bank-info-row"><span>ℹ</span><span>振込先口座はご購入後にメールおよび決済情報の詳細画面にてご確認いただけます。</span></div>
+                    <div class="bank-info-row"><span>⏰</span><span>ご注文後7日以内にお振込みください。</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ポイントのみバナー -->
+            <div class="point-only-banner" id="store-point-only-banner" style="display:none">
+              <span style="font-size:16px">✓</span>
+              <span class="point-only-banner-text">ポイントのみで購入できます</span>
+            </div>
+
+            <!-- サマリー -->
+            <div class="payment-summary">
+              <div class="summary-row">
+                <span class="summary-label">使用ポイント</span>
+                <div class="summary-val"><span class="coin coin-sm"></span><span id="store-used-display">0</span></div>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label" id="store-remain-label">クレカ決済額</span>
+                <span class="summary-val" id="store-credit-display">¥15,000</span>
+              </div>
+              <div class="summary-row" style="margin-top:8px">
+                <span class="summary-total-label">お支払い合計</span>
+                <span class="summary-total-val">¥15,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step2 確認 -->
+          <div id="store-step2" style="display:none">
+            <p style="font-size:20px;font-weight:700;text-align:center;margin-bottom:8px">購入内容の確認</p>
+            <p style="font-size:14px;text-align:center;color:var(--smoke);margin-bottom:20px">以下の内容で商品を購入しますか？</p>
+            <div class="item-card">
+              <div style="font-size:12px;color:var(--smoke);margin-bottom:6px">購入商品</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+                <span style="background:#27500A;color:#C0DD97;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700">グッズ</span>
+                <span style="font-size:14px">オリジナルフォトブック A4</span>
+              </div>
+              <div class="summary-row"><span class="summary-label">使用ポイント</span><div class="summary-val"><span class="coin coin-sm"></span><span id="store-confirm-pt">0</span></div></div>
+              <div class="summary-row"><span class="summary-label">お支払い方法</span><span class="summary-val" id="store-confirm-method">クレジットカード</span></div>
+              <div class="summary-row" style="margin-top:8px"><span class="summary-total-label">お支払い合計</span><span class="summary-total-val">¥15,000</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-area">
+          <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+          <div class="btn-row">
+            <button class="back-btn" id="store-back-btn" onclick="storeBack()"><span class="back-icon" id="store-back-icon">✕</span><span id="store-back-label">閉じる</span></button>
+            <button class="primary-btn partial" id="store-next-btn" onclick="storeNext()">購入確認</button>
+          </div>
+        </div>
+
+        <div class="bridge-overlay" id="store-bridge" onclick="closeBridgeOnBg(event,'store-bridge')">
+          <div class="bridge-sheet"><div class="bridge-handle"></div>
+            <div class="bridge-title">💳 カード追加シートを開きます</div>
+            <div class="bridge-desc">sendAppBridgeMessage("openCreateCardSheet") を呼び出し、iOSネイティブが web-view/create-card を開きます。</div>
+            <button class="bridge-close" onclick="closeBridge('store-bridge')">閉じる</button>
+          </div>
+        </div>
+        <div class="modal-overlay" id="modal-store-normal">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">購入が完了しました</div>
+            <div class="modal-body">ご購入いただきありがとうございます。3営業日以内に運営からLINEにてご案内いたします。</div>
+            <a class="modal-link">ポイント使用履歴はこちら</a>
+            <button class="modal-close" onclick="closeModal('modal-store-normal');storeReset()">閉じる</button>
+          </div></div>
+        </div>
+        <div class="modal-overlay" id="modal-store-bank">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">お申し込みが完了しました</div>
+            <div class="modal-body">振込先口座はメールおよび決済情報の詳細画面よりご確認いただけます。ご注文後7日以内にお振込みください。</div>
+            <a class="modal-link">決済情報の詳細はこちら</a>
+            <button class="modal-close" onclick="closeModal('modal-store-bank');storeReset()">閉じる</button>
+          </div></div>
+        </div>
+      </div>
+      <span class="phone-label">ストア購入<br>ポイント入力で支払い方法が切り替わります</span>
+    </div>
+  </div>
+
+  <!-- ③ ボイストレーニング（クレカのみ・固定） -->
+  <div id="voice" class="screen">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="wv-header"><button class="wv-back">‹</button><span class="wv-title">ポイントを購入</span><span class="wv-spacer"></span></div>
+        <div class="screen-body">
+          <p style="font-size:12px;color:var(--smoke);margin-bottom:16px">ポイントを選択してください</p>
+          <div style="background:var(--card-wh8);border-radius:8px;padding:12px;margin-bottom:16px">
+            <p style="font-size:12px;color:var(--smoke)">必要ポイント</p>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:4px"><span class="coin coin-md" style="background:var(--red)"></span><span style="font-size:16px;font-weight:700;color:var(--red)">800</span></div>
+          </div>
+          <div style="display:grid;gap:8px">
+            <div class="item-card" style="cursor:pointer;border:1.5px solid var(--main)"><div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">1,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥1,000</div></div></div>
+            <div class="item-card" style="cursor:pointer"><div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">2,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥2,000</div></div></div>
+            <div class="item-card" style="cursor:pointer"><div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">5,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥5,000</div></div></div>
+          </div>
+        </div>
+        <div class="button-area"><div class="btn-row"><button class="back-btn"><span class="back-icon">✕</span><span>閉じる</span></button></div></div>
+      </div>
+      <span class="phone-label">① プラン選択</span>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="wv-header"><button class="wv-back">‹</button><span class="wv-title">ポイント購入</span><span class="wv-spacer"></span></div>
+        <div class="screen-body">
+          <p style="font-size:16px;text-align:center;margin-bottom:24px">以下の内容でポイントを購入します。よろしいですか？</p>
+          <div class="item-row" style="margin-bottom:24px">
+            <div class="item-left"><span class="coin coin-lg"></span><span class="item-name">1,000</span></div>
+            <div class="item-price">¥1,000</div>
+          </div>
+          <hr class="divider">
+          <span class="section-label">支払い方法</span>
+          <div class="radio-option selected">
+            <div class="radio-circle checked"></div>
+            <div class="radio-body">
+              <div class="radio-label">クレジットカード</div>
+              <div class="card-expand">
+                <div class="card-select"><div class="card-info"><span class="visa-badge">VISA</span><span>****-****-5444</span></div><span class="card-arrow">›</span></div>
+                <button class="add-card-btn" onclick="openBridge('voice-bridge',event)">+ 新しいカードを追加</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="button-area">
+          <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+          <div class="btn-row">
+            <button class="back-btn"><span class="back-icon">‹</span><span>戻る</span></button>
+            <button class="primary-btn partial" onclick="showModal('modal-voice')">購入する</button>
+          </div>
+        </div>
+        <div class="bridge-overlay" id="voice-bridge" onclick="closeBridgeOnBg(event,'voice-bridge')">
+          <div class="bridge-sheet"><div class="bridge-handle"></div>
+            <div class="bridge-title">💳 カード追加シートを開きます</div>
+            <div class="bridge-desc">sendAppBridgeMessage("openCreateCardSheet") を呼び出します。</div>
+            <button class="bridge-close" onclick="closeBridge('voice-bridge')">閉じる</button>
+          </div>
+        </div>
+        <div class="modal-overlay" id="modal-voice">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">購入が完了しました</div>
+            <button class="modal-close" onclick="closeModal('modal-voice')">閉じる</button>
+          </div></div>
+        </div>
+      </div>
+      <span class="phone-label">② クレカ購入（固定・ラジオなし）</span>
+    </div>
+  </div>
+
+  <!-- ④ ポイント購入WebView（クレカのみ・固定） -->
+  <div id="point-wv" class="screen">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="wv-header"><button class="wv-back">‹</button><span class="wv-title">ポイントを購入</span><span class="wv-spacer"></span></div>
+        <div class="screen-body">
+          <div class="caption"><span class="caption-icon">ℹ</span><span class="caption-text">ポイントの有効期限は、ポイントの獲得日から起算し、150日間とします。有効期限が切れ次第、システムより自動で削除されます。</span></div>
+          <div class="item-row" style="margin-bottom:24px">
+            <div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">3,000</div><div class="item-sub">+300pt ボーナス</div></div></div>
+            <div class="item-price">¥3,000</div>
+          </div>
+          <hr class="divider">
+          <span class="section-label">支払い方法</span>
+          <div class="radio-option selected">
+            <div class="radio-circle checked"></div>
+            <div class="radio-body">
+              <div class="radio-label">クレジットカード</div>
+              <div class="card-expand">
+                <div class="card-select"><div class="card-info"><span class="visa-badge">VISA</span><span>****-****-5444</span></div><span class="card-arrow">›</span></div>
+                <button class="add-card-btn" onclick="openBridge('pwv-bridge',event)">+ 新しいカードを追加</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="button-area">
+          <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+          <button class="primary-btn full" onclick="showModal('modal-pwv')">ポイントを購入する</button>
+        </div>
+        <div class="bridge-overlay" id="pwv-bridge" onclick="closeBridgeOnBg(event,'pwv-bridge')">
+          <div class="bridge-sheet"><div class="bridge-handle"></div>
+            <div class="bridge-title">💳 カード追加シートを開きます</div>
+            <div class="bridge-desc">sendAppBridgeMessage("openCreateCardSheet") を呼び出します。</div>
+            <button class="bridge-close" onclick="closeBridge('pwv-bridge')">閉じる</button>
+          </div>
+        </div>
+        <div class="modal-overlay" id="modal-pwv">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">購入が完了しました</div>
+            <button class="modal-close" onclick="closeModal('modal-pwv')">閉じる</button>
+          </div></div>
+        </div>
+      </div>
+      <span class="phone-label">web-view/points/purchase（クレカ固定）</span>
+    </div>
+  </div>
+
+  <!-- ⑤ ギフト（統一対象外） -->
+  <div id="gift" class="screen">
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">10:01</span><span class="status-icons">●●● WiFi 🔋</span></div>
+        <div class="wv-header"><button class="wv-back">‹</button><span class="wv-title">ギフト</span><span class="wv-spacer"></span></div>
+        <div class="screen-body" style="padding-bottom:150px">
+          <div class="tab-row">
+            <button class="tab-item active" onclick="giftTab(this,'gift-all')">すべて</button>
+            <button class="tab-item" onclick="giftTab(this,'gift-owned')">所持中</button>
+            <button class="tab-item" onclick="giftTab(this,'gift-history')">送信履歴</button>
+          </div>
+          <div id="gift-all">
+            <p style="font-size:12px;color:var(--smoke);margin-bottom:8px">スタンダード</p>
+            <div class="gift-grid">
+              <div class="gift-item selected" onclick="selectGift(this)"><span class="gift-emoji">🌸</span><span class="gift-name">サクラ</span><div class="gift-pt"><span class="coin coin-sm"></span>100</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">⭐</span><span class="gift-name">スター</span><div class="gift-pt"><span class="coin coin-sm"></span>200</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">🎵</span><span class="gift-name">ミュージック</span><div class="gift-pt"><span class="coin coin-sm"></span>300</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">💎</span><span class="gift-name">ダイヤ</span><div class="gift-pt"><span class="coin coin-sm"></span>500</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">🎆</span><span class="gift-name">花火</span><div class="gift-pt"><span class="coin coin-sm"></span>1,000</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">👑</span><span class="gift-name">クラウン</span><div class="gift-pt"><span class="coin coin-sm"></span>2,000</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">🚀</span><span class="gift-name">ロケット</span><div class="gift-pt"><span class="coin coin-sm"></span>3,000</div></div>
+              <div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">🎊</span><span class="gift-name">クラッカー</span><div class="gift-pt"><span class="coin coin-sm"></span>5,000</div></div>
+            </div>
+          </div>
+          <div id="gift-owned" style="display:none">
+            <div class="gift-grid"><div class="gift-item" onclick="selectGift(this)"><span class="gift-emoji">🌸</span><span class="gift-name">サクラ</span><div class="gift-pt"><span class="coin coin-sm"></span>100</div></div></div>
+          </div>
+          <div id="gift-history" style="display:none">
+            <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:0.5px solid var(--card-wh16)">
+              <div><div style="font-size:14px">🌸 サクラ</div><div style="font-size:12px;color:var(--smoke);margin-top:2px">2026/05/25 21:30</div></div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:14px;color:var(--smoke)"><span class="coin coin-sm"></span>100</div>
+            </div>
+          </div>
+        </div>
+        <div class="button-area" style="padding:12px 16px 32px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:12px;color:var(--smoke)">残高</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:14px;font-weight:700"><span class="coin coin-sm"></span>2,400</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <div><div style="font-size:11px;color:var(--smoke)">選択中</div><div style="display:flex;align-items:center;gap:4px;font-size:16px;font-weight:700">🌸 <span style="display:flex;align-items:center;gap:3px;font-size:12px"><span class="coin coin-sm"></span>100</span></div></div>
+            <button class="gradient-btn" onclick="showModal('modal-gift')">送る</button>
+          </div>
+          <button class="commercial-btn" style="margin-bottom:0">📋 特定商取引法に基づく表記</button>
+        </div>
+        <div class="modal-overlay" id="modal-gift">
+          <div class="modal-inner"><div class="modal-content">
+            <div class="modal-title">ギフトを送りました！</div>
+            <button class="modal-close" onclick="closeModal('modal-gift')">閉じる</button>
+          </div></div>
+        </div>
+      </div>
+      <span class="phone-label">ギフト（統一対象外・現状維持）</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── 画面切替 ──
+  function showScreen(id, btn) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function showModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function openBridge(id, e) { if(e) e.stopPropagation(); document.getElementById(id).classList.add('open'); }
+  function closeBridge(id) { document.getElementById(id).classList.remove('open'); }
+  function closeBridgeOnBg(e, id) { if (e.target === document.getElementById(id)) closeBridge(id); }
+
+  // ── ポイント入力 → 動的切替 ──
+  const PRICES = { sl: 2000, store: 15000 };
+
+  function onPointInput(screen, price, val) {
+    const used = Math.min(Math.max(parseInt(val)||0, 0), price);
+    const remain = Math.max(price - used, 0);
+    const isPointOnly = remain === 0 && used > 0;
+
+    // サマリー更新
+    document.getElementById(`${screen}-used-display`).textContent = used.toLocaleString();
+    const creditEl = document.getElementById(`${screen}-credit-display`);
+    if (creditEl) {
+      const prefix = screen === 'store' ? '¥' : '';
+      const suffix = screen === 'sl' ? '円' : '';
+      creditEl.textContent = prefix + remain.toLocaleString() + suffix;
+    }
+
+    // 支払い方法セクション表示切替
+    const methodSection = document.getElementById(`${screen}-method-section`);
+    const pointOnlyBanner = document.getElementById(`${screen}-point-only-banner`);
+
+    if (isPointOnly) {
+      methodSection.classList.add('hidden');
+      pointOnlyBanner.style.display = 'flex';
+    } else {
+      methodSection.classList.remove('hidden');
+      pointOnlyBanner.style.display = 'none';
+    }
+  }
+
+  function useAll(screen, price) {
+    const input = document.getElementById(`${screen}-pt-input`);
+    input.value = price;
+    onPointInput(screen, price, price);
+  }
+
+  // ── 支払い方法選択（ラジオ） ──
+  function selectPayMethod(screen, method) {
+    ['credit','bank'].forEach(m => {
+      const radio = document.getElementById(`${screen}-radio-${m}`);
+      const rc = document.getElementById(`${screen}-rc-${m}`);
+      if (!radio) return;
+      radio.classList.toggle('selected', m === method);
+      rc.classList.toggle('checked', m === method);
+    });
+
+    // ストアのみ銀行振込詳細・クレカ展開を切替
+    if (screen === 'store') {
+      const bankInfo = document.getElementById('store-bank-info');
+      const cardExpand = document.getElementById('store-card-expand');
+      const remainLabel = document.getElementById('store-remain-label');
+      if (bankInfo) bankInfo.style.display = method === 'bank' ? 'block' : 'none';
+      if (cardExpand) cardExpand.style.display = method === 'credit' ? 'block' : 'none';
+      if (remainLabel) remainLabel.textContent = method === 'bank' ? '振込額' : 'クレカ決済額';
+    }
+  }
+
+  // ── ストア 2ステップ ──
+  let storeStep = 1;
+  let storeCurrentMethod = 'credit';
+
+  function storeNext() {
+    if (storeStep === 1) {
+      const usedPt = document.getElementById('store-used-display').textContent;
+      const method = document.getElementById('store-radio-bank')?.classList.contains('selected') ? '銀行振込' : 'クレジットカード';
+      storeCurrentMethod = method === '銀行振込' ? 'bank' : 'credit';
+      document.getElementById('store-confirm-pt').textContent = usedPt;
+      document.getElementById('store-confirm-method').textContent = method;
+      document.getElementById('store-step1').style.display = 'none';
+      document.getElementById('store-step2').style.display = '';
+      document.getElementById('store-title').textContent = '購入内容の確認';
+      document.getElementById('store-next-btn').textContent = '購入確定';
+      document.getElementById('store-back-icon').textContent = '‹';
+      document.getElementById('store-back-label').textContent = '戻る';
+      storeStep = 2;
+    } else {
+      showModal(storeCurrentMethod === 'bank' ? 'modal-store-bank' : 'modal-store-normal');
+    }
+  }
+  function storeBack() {
+    if (storeStep === 2) {
+      document.getElementById('store-step1').style.display = '';
+      document.getElementById('store-step2').style.display = 'none';
+      document.getElementById('store-title').textContent = '購入内容の確認';
+      document.getElementById('store-next-btn').textContent = '購入確認';
+      document.getElementById('store-back-icon').textContent = '✕';
+      document.getElementById('store-back-label').textContent = '閉じる';
+      storeStep = 1;
+    }
+  }
+  function storeReset() { storeStep = 1; storeBack(); }
+
+  // ── Gift ──
+  function giftTab(btn, id) {
+    document.querySelectorAll('#gift .tab-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['gift-all','gift-owned','gift-history'].forEach(i => document.getElementById(i).style.display = i===id?'':'none');
+  }
+  function selectGift(el) {
+    document.querySelectorAll('.gift-item').forEach(g => g.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+</body>
+</html>
