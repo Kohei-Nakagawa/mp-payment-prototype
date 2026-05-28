@@ -118,6 +118,9 @@
   /* ── Screen body（スクロール領域） ── */
   .screen-body { flex: 1; overflow-y: auto; padding: 16px; scrollbar-width: none; min-height: 0; }
   .screen-body::-webkit-scrollbar { display: none; }
+  /* 全画面コンテンツ幅を統一 */
+  .screen-body > * { max-width: 480px; margin-left: auto; margin-right: auto; }
+  .screen-body > div { max-width: 480px; margin-left: auto; margin-right: auto; }
 
   /* ── Parts ── */
   .caption { display: flex; gap: 4px; margin-bottom: 16px; }
@@ -154,8 +157,15 @@
     cursor: pointer; border: 1px solid transparent; user-select: none;
   }
   .card-select-trigger:focus { outline: 2px solid var(--white); border-radius: 16px; }
-  .card-info { display: flex; align-items: center; gap: 10px; color: var(--smoke); font-size: 14px; }
-  .visa-badge { background: #1a1f71; color: var(--white); font-size: 9px; font-weight: 900; padding: 2px 5px; border-radius: 3px; }
+  .card-info { display: flex; align-items: center; gap: 10px; color: var(--white); font-size: 14px; }
+  .visa-badge {
+    background: #1a1f71; color: var(--white); font-size: 9px; font-weight: 900;
+    padding: 3px 6px; border-radius: 3px; letter-spacing: 1px;
+    font-style: italic; flex-shrink: 0;
+  }
+  .card-number { font-size: 14px; font-weight: 500; letter-spacing: 1px; color: var(--white); }
+  .card-expiry { font-size: 12px; color: var(--smoke); }
+  .card-name { font-size: 12px; color: var(--smoke); margin-left: auto; }
   .card-arrow { color: var(--white); font-size: 16px; transition: transform 0.2s; }
   .card-arrow.open { transform: rotate(180deg); }
 
@@ -370,12 +380,12 @@
                   <!-- CreditCardSelect -->
                   <div class="card-select-wrap">
                     <div class="card-select-trigger" tabindex="0" onclick="toggleDropdown('sl-dd')" onkeydown="if(event.key==='Enter')toggleDropdown('sl-dd')">
-                      <div class="card-info"><span class="visa-badge">VISA</span><span id="sl-card-label">****-****-5444</span></div>
+                      <div class="card-info"><span class="visa-badge">VISA</span><div><div class="card-number" id="sl-card-label">•••• •••• •••• 5444</div><div class="card-expiry">有効期限 12/27　<span class="card-name">KOHEI NAKAGAWA</span></div></div></div>
                       <span class="card-arrow" id="sl-dd-arrow">▾</span>
                     </div>
                     <div class="card-dropdown" id="sl-dd">
-                      <div class="card-option selected" onclick="selectCard('sl','****-****-5444','sl-dd')"><span class="visa-badge">VISA</span>****-****-5444</div>
-                      <div class="card-option selected" onclick="selectCard('sl','****-****-9012','sl-dd')"><span class="visa-badge">VISA</span>****-****-9012</div>
+                      <div class="card-option selected" onclick="selectCard('sl','•••• •••• •••• 5444','sl-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 5444</div><div style='font-size:11px;color:var(--smoke)'>12/27 · KOHEI NAKAGAWA</div></div></div>
+                      <div class="card-option" onclick="selectCard('sl','•••• •••• •••• 9012','sl-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 9012</div><div style='font-size:11px;color:var(--smoke)'>08/26 · KOHEI NAKAGAWA</div></div></div>
                       <div class="card-option add-new" onclick="openBridge('sl-bridge');closeDropdown('sl-dd')">+ 新しいカードを追加</div>
                     </div>
                   </div>
@@ -498,12 +508,12 @@
                   <div class="card-expand" id="store-card-expand">
                     <div class="card-select-wrap">
                       <div class="card-select-trigger" tabindex="0" onclick="toggleDropdown('store-dd');event.stopPropagation()" onkeydown="if(event.key==='Enter')toggleDropdown('store-dd')">
-                        <div class="card-info"><span class="visa-badge">VISA</span><span id="store-card-label">****-****-5444</span></div>
+                        <div class="card-info"><span class="visa-badge">VISA</span><div><div class="card-number" id="store-card-label">•••• •••• •••• 5444</div><div class="card-expiry">有効期限 12/27　<span class="card-name">KOHEI NAKAGAWA</span></div></div></div>
                         <span class="card-arrow" id="store-dd-arrow">▾</span>
                       </div>
                       <div class="card-dropdown" id="store-dd">
-                        <div class="card-option selected" onclick="selectCard('store','****-****-5444','store-dd')"><span class="visa-badge">VISA</span>****-****-5444</div>
-                        <div class="card-option" onclick="selectCard('store','****-****-9012','store-dd')"><span class="visa-badge">VISA</span>****-****-9012</div>
+                        <div class="card-option selected" onclick="selectCard('store','•••• •••• •••• 5444','store-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 5444</div><div style='font-size:11px;color:var(--smoke)'>12/27 · KOHEI NAKAGAWA</div></div></div>
+                        <div class="card-option" onclick="selectCard('store','•••• •••• •••• 9012','store-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 9012</div><div style='font-size:11px;color:var(--smoke)'>08/26 · KOHEI NAKAGAWA</div></div></div>
                         <div class="card-option add-new" onclick="openBridge('store-bridge');closeDropdown('store-dd')">+ 新しいカードを追加</div>
                       </div>
                     </div>
@@ -656,12 +666,12 @@
               <div class="card-expand">
                 <div class="card-select-wrap">
                   <div class="card-select-trigger" tabindex="0" onclick="toggleDropdown('voice-dd')" onkeydown="if(event.key==='Enter')toggleDropdown('voice-dd')">
-                    <div class="card-info"><span class="visa-badge">VISA</span><span id="voice-card-label">****-****-5444</span></div>
+                    <div class="card-info"><span class="visa-badge">VISA</span><div><div class="card-number" id="voice-card-label">•••• •••• •••• 5444</div><div class="card-expiry">有効期限 12/27　<span class="card-name">KOHEI NAKAGAWA</span></div></div></div>
                     <span class="card-arrow" id="voice-dd-arrow">▾</span>
                   </div>
                   <div class="card-dropdown" id="voice-dd">
-                    <div class="card-option selected" onclick="selectCard('voice','****-****-5444','voice-dd')"><span class="visa-badge">VISA</span>****-****-5444</div>
-                    <div class="card-option" onclick="selectCard('voice','****-****-9012','voice-dd')"><span class="visa-badge">VISA</span>****-****-9012</div>
+                    <div class="card-option selected" onclick="selectCard('voice','•••• •••• •••• 5444','voice-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 5444</div><div style='font-size:11px;color:var(--smoke)'>12/27 · KOHEI NAKAGAWA</div></div></div>
+                    <div class="card-option" onclick="selectCard('voice','•••• •••• •••• 9012','voice-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 9012</div><div style='font-size:11px;color:var(--smoke)'>08/26 · KOHEI NAKAGAWA</div></div></div>
                     <div class="card-option add-new" onclick="openBridge('voice-bridge');closeDropdown('voice-dd')">+ 新しいカードを追加</div>
                   </div>
                 </div>
@@ -742,12 +752,12 @@
               <div class="card-expand">
                 <div class="card-select-wrap">
                   <div class="card-select-trigger" tabindex="0" onclick="toggleDropdown('pwv-dd')" onkeydown="if(event.key==='Enter')toggleDropdown('pwv-dd')">
-                    <div class="card-info"><span class="visa-badge">VISA</span><span id="pwv-card-label">****-****-5444</span></div>
+                    <div class="card-info"><span class="visa-badge">VISA</span><div><div class="card-number" id="pwv-card-label">•••• •••• •••• 5444</div><div class="card-expiry">有効期限 12/27　<span class="card-name">KOHEI NAKAGAWA</span></div></div></div>
                     <span class="card-arrow" id="pwv-dd-arrow">▾</span>
                   </div>
                   <div class="card-dropdown" id="pwv-dd">
-                    <div class="card-option selected" onclick="selectCard('pwv','****-****-5444','pwv-dd')"><span class="visa-badge">VISA</span>****-****-5444</div>
-                    <div class="card-option" onclick="selectCard('pwv','****-****-9012','pwv-dd')"><span class="visa-badge">VISA</span>****-****-9012</div>
+                    <div class="card-option selected" onclick="selectCard('pwv','•••• •••• •••• 5444','pwv-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 5444</div><div style='font-size:11px;color:var(--smoke)'>12/27 · KOHEI NAKAGAWA</div></div></div>
+                    <div class="card-option" onclick="selectCard('pwv','•••• •••• •••• 9012','pwv-dd')"><span class="visa-badge">VISA</span><div style='display:inline-block;margin-left:8px'><div>•••• •••• •••• 9012</div><div style='font-size:11px;color:var(--smoke)'>08/26 · KOHEI NAKAGAWA</div></div></div>
                     <div class="card-option add-new" onclick="openBridge('pwv-bridge');closeDropdown('pwv-dd')">+ 新しいカードを追加</div>
                   </div>
                 </div>
