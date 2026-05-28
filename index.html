@@ -29,7 +29,49 @@
   .screen { display: none; }
   .screen.active { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
 
-  /* ── PC: Phone frame ── */
+  /* ── BottomSheet構造 ── */
+  .bs-phone {
+    background: #181818 !important;
+    position: relative;
+  }
+  /* ライブ背景グラデーション */
+  .bs-live-bg {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 280px; flex-shrink: 0;
+    background: linear-gradient(180deg,
+      #0f2027 0%, #203a43 40%, #2c5364 70%,
+      rgba(24,24,24,0.6) 85%, #181818 100%);
+    z-index: 0;
+  }
+  /* BottomSheetパネル本体 */
+  .bs-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #282828;
+    border-radius: 16px 16px 0 0;
+    border-top: 2px solid #555;
+    border-left: 2px solid #555;
+    border-right: 2px solid #555;
+    display: flex; flex-direction: column;
+    /* 高さはphoneに合わせて可変 */
+    top: 44px; /* status-barの下から */
+    z-index: 1;
+    overflow: hidden;
+  }
+  /* BottomSheetHeader：インジケーターのみ */
+  .bs-header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 12px 8px 8px; flex-shrink: 0;
+  }
+  .bs-indicator {
+    width: 32px; height: 4px;
+    background: #888888; border-radius: 2px;
+  }
+  /* BottomSheetのscroll body */
+  .bs-body {
+    flex: 1; overflow-y: auto; padding: 0 16px 16px;
+    scrollbar-width: none; min-height: 0;
+  }
+  .bs-body::-webkit-scrollbar { display: none; }
   .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
   .phone-label { font-size: 11px; color: var(--smoke); text-align: center; line-height: 1.5; }
   .phone {
@@ -335,18 +377,23 @@
   <!-- ① SLチケット -->
   <div id="sl" class="screen active">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
-        <div class="stepper">
+      <div class="phone bs-phone">
+        <div class="status-bar" style="position:relative;z-index:2"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+        <!-- ライブ背景 -->
+        <div class="bs-live-bg"></div>
+        <!-- BottomSheet -->
+        <div class="bs-sheet">
+          <div class="bs-header"><div class="bs-indicator"></div></div>
+          <div class="stepper">
           <div class="stepper-progress">
             <div class="stepper-line"></div>
-            <div class="stepper-connector"><div class="step-circle active">1</div></div>
-            <div class="stepper-connector"><div class="step-circle">2</div></div>
+            <div class="stepper-connector"><div class="step-circle">1</div></div>
+            <div class="stepper-connector"><div class="step-circle active">2</div></div>
             <div class="stepper-connector"><div class="step-circle">3</div></div>
           </div>
           <div class="stepper-labels">
-            <div class="stepper-label-item active">アーティスト選択</div>
-            <div class="stepper-label-item">お支払い</div>
+            <div class="stepper-label-item">アーティスト選択</div>
+            <div class="stepper-label-item active">お支払い</div>
             <div class="stepper-label-item">完了</div>
           </div>
         </div>
@@ -469,21 +516,27 @@
             <button class="modal-close" onclick="closeModal('modal-sl')">閉じる</button>
           </div></div>
         </div>
+        </div><!-- /bs-sheet -->
       </div>
-      <span class="phone-label">SLチケット購入<br>ポイント入力で支払い方法が動的切替 / クレカタップでドロップダウン</span>
+      <span class="phone-label">SLチケット購入<br>BottomSheet構造（背景にライブ画面）</span>
     </div>
   </div>
 
   <!-- ② ストア購入 -->
   <div id="store" class="screen">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
-        <div class="wv-header">
-          <button class="wv-back">‹</button>
-          <span class="wv-title" id="store-header">購入内容の確認</span>
-          <span class="wv-spacer"></span>
-        </div>
+      <div class="phone bs-phone">
+        <div class="status-bar" style="position:relative;z-index:2"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+        <div class="bs-live-bg" style="background:linear-gradient(180deg,#1a1a2e 0%,#16213e 40%,#0f3460 70%,rgba(24,24,24,0.6) 85%,#181818 100%)"></div>
+        <div class="bs-sheet">
+          <div class="bs-header">
+            <div class="bs-indicator"></div>
+            <div style="display:flex;align-items:center;padding:4px 8px 0;width:100%">
+              <span style="width:32px"></span>
+              <span style="flex:1;text-align:center;font-size:16px;font-weight:700" id="store-header">購入内容の確認</span>
+              <span style="width:32px"></span>
+            </div>
+          </div>
         <div class="screen-body">
           <div id="store-s1">
             <div class="item-card">
@@ -636,20 +689,26 @@
           </div></div>
         </div>
       </div>
-      <span class="phone-label">ストア購入<br>ポイント動的切替 / クレカドロップダウン / 銀行振込対応</span>
+        </div><!-- /bs-sheet -->
+      <span class="phone-label">ストア購入<br>BottomSheet構造</span>
     </div>
   </div>
 
   <!-- ③ ボイストレーニング（1画面・内部遷移） -->
   <div id="voice" class="screen">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
-        <div class="wv-header">
-          <button class="wv-back" id="voice-back-btn" onclick="voiceBack()">‹</button>
-          <span class="wv-title" id="voice-title">ポイントを購入</span>
-          <span class="wv-spacer"></span>
-        </div>
+      <div class="phone bs-phone">
+        <div class="status-bar" style="position:relative;z-index:2"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+        <div class="bs-live-bg" style="background:linear-gradient(180deg,#1a0533 0%,#2d1b4e 40%,#4a2c6e 70%,rgba(24,24,24,0.6) 85%,#181818 100%)"></div>
+        <div class="bs-sheet">
+          <div class="bs-header">
+            <div class="bs-indicator"></div>
+            <div style="display:flex;align-items:center;padding:4px 8px 0;width:100%">
+              <button class="wv-back" id="voice-back-btn" onclick="voiceBack()" style="visibility:hidden">‹</button>
+              <span style="flex:1;text-align:center;font-size:16px;font-weight:700" id="voice-title">ポイントを購入</span>
+              <span style="width:32px"></span>
+            </div>
+          </div>
 
         <!-- Step1: プラン選択 -->
         <div class="screen-body" id="voice-step1">
@@ -744,7 +803,8 @@
           </div></div>
         </div>
       </div>
-      <span class="phone-label">ボイストレーニング（プラン選択→クレカ購入）</span>
+        </div><!-- /bs-sheet -->
+      <span class="phone-label">ボイストレーニング<br>BottomSheet構造</span>
     </div>
   </div>
 
@@ -833,8 +893,10 @@
           <button onclick="eventNext()" class="primary-btn full">申込む</button>
         </div>
 
-        <!-- Step2: 支払い確認 -->
-        <div class="screen-body" id="event-step2" style="display:none">
+        <!-- Step2: 支払い確認（BottomSheet） -->
+        <div id="event-step2" style="display:none;position:absolute;bottom:0;left:0;right:0;top:44px;background:#282828;border-radius:16px 16px 0 0;border-top:2px solid #555;border-left:2px solid #555;border-right:2px solid #555;z-index:10;display:none;flex-direction:column;overflow:hidden">
+          <div class="bs-header"><div class="bs-indicator"></div></div>
+        <div class="screen-body" style="flex:1;overflow-y:auto;padding:16px">
           <p style="font-size:16px;text-align:center;margin-bottom:8px">以下の内容でイベントに申込みますか？</p>
           <div class="caption" style="justify-content:center;margin-bottom:20px">
             <span class="caption-icon">ℹ</span>
@@ -878,15 +940,15 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="button-area" id="event-footer2" style="display:none">
+        </div><!-- /screen-body in event-step2 -->
+        <div class="button-area" id="event-footer2" style="display:none;flex-shrink:0">
           <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
           <div class="btn-row">
             <button class="back-btn" onclick="eventBack()"><span class="back-icon">‹</span><span>戻る</span></button>
             <button class="primary-btn partial" onclick="showModal('modal-event')">申込む</button>
           </div>
         </div>
-
+        </div><!-- /event-step2 bs-sheet -->
         <div class="modal-overlay" id="modal-event">
           <div class="modal-inner"><div class="modal-content">
             <div class="modal-title">申込が完了しました</div>
@@ -902,11 +964,11 @@
   <!-- ⑤ MP+SUPPORTERS（クレカのみ・数量選択） -->
   <div id="supporters" class="screen">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
-        <div style="display:flex;flex-direction:column;align-items:center;padding:12px 8px 8px;flex-shrink:0">
-          <div style="width:32px;height:4px;background:var(--smoke);border-radius:2px;margin-bottom:8px"></div>
-        </div>
+      <div class="phone bs-phone">
+        <div class="status-bar" style="position:relative;z-index:2"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+        <div class="bs-live-bg" style="background:linear-gradient(180deg,#0d2137 0%,#1a3a5c 40%,#1e5f74 70%,rgba(24,24,24,0.6) 85%,#181818 100%)"></div>
+        <div class="bs-sheet">
+        <div class="bs-header"><div class="bs-indicator"></div></div>
         <div class="screen-body">
           <p style="font-size:16px;text-align:center;margin-bottom:20px">以下の内容で購入し、サポートしますか？</p>
 
@@ -1006,21 +1068,36 @@
           </div></div>
         </div>
       </div>
-      <span class="phone-label">SubscriptionPurchase（クレカのみ・数量選択）</span>
+        </div><!-- /bs-sheet -->
+      <span class="phone-label">MP+SUPPORTERS<br>BottomSheet構造</span>
     </div>
   </div>
 
   <!-- ⑥ ギフト -->
   <div id="gift" class="screen">
     <div class="phone-wrap">
-      <div class="phone">
-        <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
-        <div class="wv-header"><button class="wv-back">‹</button><span class="wv-title">ギフト</span><span class="wv-spacer"></span></div>
+      <div class="phone bs-phone">
+        <div class="status-bar" style="position:relative;z-index:2"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+        <div class="bs-live-bg" style="background:linear-gradient(180deg,#1a0a2e 0%,#2d1654 40%,#1a1a6e 70%,rgba(24,24,24,0.6) 85%,#181818 100%)"></div>
+        <div class="bs-sheet">
+          <div class="bs-header">
+            <div class="bs-indicator"></div>
+            <!-- BottomSheetHeader: インジケーター＋×ボタン（Figma準拠） -->
+            <div style="display:flex;align-items:center;padding:4px 8px 0;width:100%">
+              <span style="width:48px"></span>
+              <span style="flex:1;text-align:center;font-size:16px;font-weight:700"></span>
+              <button style="width:40px;height:40px;background:none;border:none;color:var(--white);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+            </div>
+          </div>
         <div class="screen-body" style="padding-bottom:8px">
-          <div class="tab-row">
-            <button class="tab-item active" onclick="giftTab(this,'ga')">すべて</button>
-            <button class="tab-item" onclick="giftTab(this,'go')">所持中</button>
-            <button class="tab-item" onclick="giftTab(this,'gh')">送信履歴</button>
+          <!-- タブ（Figma準拠：履歴・すべて・ライブ・コミュニティ・SUPER LIVE・MP・MP+） -->
+          <div style="display:flex;overflow-x:auto;border-bottom:0.5px solid var(--wh16);margin-bottom:12px;scrollbar-width:none;gap:0">
+            <button class="tab-item" onclick="giftTab(this,'gh')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;color:var(--light-gray);background:none;border:none;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap">履歴</button>
+            <button class="tab-item active" onclick="giftTab(this,'ga')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;font-weight:700;color:var(--white);background:none;border:none;cursor:pointer;border-bottom:4px solid var(--main);white-space:nowrap">すべて</button>
+            <button class="tab-item" onclick="giftTab(this,'gl')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;color:var(--light-gray);background:none;border:none;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap">ライブ</button>
+            <button class="tab-item" onclick="giftTab(this,'gc')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;color:var(--light-gray);background:none;border:none;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap">コミュニティ</button>
+            <button class="tab-item" onclick="giftTab(this,'gs')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;color:var(--light-gray);background:none;border:none;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap">SUPER LIVE</button>
+            <button class="tab-item" onclick="giftTab(this,'gm')" style="flex-shrink:0;padding:8px 16px 4px;font-size:13px;color:var(--light-gray);background:none;border:none;cursor:pointer;border-bottom:4px solid transparent;white-space:nowrap">MP・MP+</button>
           </div>
           <div id="ga"><p style="font-size:12px;color:var(--smoke);margin-bottom:8px">スタンダード</p>
             <div class="gift-grid">
@@ -1032,19 +1109,128 @@
               <div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">👑</span><span class="gift-name">クラウン</span><div class="gift-pt"><span class="coin coin-sm"></span>2,000</div></div>
             </div>
           </div>
-          <div id="go" style="display:none"><div class="gift-grid"><div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">🌸</span><span class="gift-name">サクラ</span><div class="gift-pt"><span class="coin coin-sm"></span>100</div></div></div></div>
           <div id="gh" style="display:none"><div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:0.5px solid var(--wh16)"><div><div style="font-size:14px">🌸 サクラ</div><div style="font-size:12px;color:var(--smoke);margin-top:2px">2026/05/25</div></div><div style="display:flex;align-items:center;gap:4px;color:var(--smoke);font-size:14px"><span class="coin coin-sm"></span>100</div></div></div>
+          <div id="gl" style="display:none"><div class="gift-grid"><div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">🌸</span><span class="gift-name">サクラ</span><div class="gift-pt"><span class="coin coin-sm"></span>100</div></div></div></div>
+          <div id="gc" style="display:none"><div class="gift-grid"><div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">⭐</span><span class="gift-name">スター</span><div class="gift-pt"><span class="coin coin-sm"></span>200</div></div></div></div>
+          <div id="gs" style="display:none"><div class="gift-grid"><div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">💎</span><span class="gift-name">ダイヤ</span><div class="gift-pt"><span class="coin coin-sm"></span>500</div></div></div></div>
+          <div id="gm" style="display:none"><div class="gift-grid"><div class="gift-item" onclick="selGift(this)"><span class="gift-emoji">👑</span><span class="gift-name">クラウン</span><div class="gift-pt"><span class="coin coin-sm"></span>2,000</div></div></div></div>
         </div>
-        <div class="button-area" style="padding:12px 16px 32px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--smoke)">残高 <span class="coin coin-sm"></span><span style="color:var(--white);font-weight:700">2,400</span></div>
-            <button class="gradient-btn" onclick="showModal('modal-gift')">送る</button>
+        <!-- BottomAction（Figma準拠：ポイント不足状態） -->
+        <div class="button-area" style="padding:16px 16px 32px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <!-- ポイント残高カード（タップでポイント購入シートを開く） -->
+            <div style="background:var(--wh8);border-radius:8px;padding:8px 8px 8px 16px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="openGiftPointSheet()">
+              <span class="coin coin-sm"></span>
+              <span style="font-size:15px;font-weight:700;color:var(--red)">0</span>
+              <span style="font-size:20px;color:var(--smoke)">›</span>
+            </div>
+            <!-- 送るボタン（ポイント不足なのでdisabled） -->
+            <button disabled
+              style="height:40px;padding:0 16px;background:none;border:2px solid var(--wh16);color:var(--wh16);font-size:13px;font-weight:700;cursor:not-allowed;min-width:100px">
+              送る
+            </button>
           </div>
-          <button class="commercial-btn" style="margin-bottom:0">📋 特定商取引法に基づく表記</button>
+        </div>
+
+        <!-- ポイント購入シート（BottomSheet内BottomSheet） -->
+        <div id="gift-point-sheet" style="display:none;position:absolute;inset:0;z-index:20;background:rgba(0,0,0,0.6);border-radius:inherit" onclick="if(event.target===this)closeGiftPointSheet()">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:#282828;border-radius:16px 16px 0 0;border-top:2px solid #555;border-left:2px solid #555;border-right:2px solid #555;display:flex;flex-direction:column;overflow:hidden">
+            <div class="bs-header"><div class="bs-indicator"></div></div>
+            <div style="flex:1;overflow-y:auto;padding:16px">
+              <p style="font-size:16px;text-align:center;margin-bottom:8px">ポイントが不足しています</p>
+              <div class="caption" style="justify-content:center;margin-bottom:20px">
+                <span class="caption-icon">ℹ</span>
+                <span class="caption-text">ギフトを送るにはポイントが必要です</span>
+              </div>
+              <div style="display:grid;gap:8px">
+                <div class="item-card" style="cursor:pointer;border:1.5px solid var(--main)" onclick="giftSelectPlan(this,'1,000','¥1,000')">
+                  <div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">1,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥1,000</div></div>
+                </div>
+                <div class="item-card" style="cursor:pointer" onclick="giftSelectPlan(this,'3,000','¥3,000')">
+                  <div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">3,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥3,000</div></div>
+                </div>
+                <div class="item-card" style="cursor:pointer" onclick="giftSelectPlan(this,'5,000','¥5,000')">
+                  <div class="item-row"><div class="item-left"><span class="coin coin-lg"></span><div><div class="item-name">5,000</div><div style="font-size:12px;color:var(--smoke)">消費税込み</div></div></div><div class="item-price">¥5,000</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="button-area">
+              <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+              <div class="btn-row">
+                <button class="back-btn" onclick="closeGiftPointSheet()"><span class="back-icon">✕</span><span>閉じる</span></button>
+                <button class="primary-btn partial" id="gift-point-buy-btn" onclick="showModal('modal-gift-point')">購入する</button>
+              </div>
+            </div>
+            <!-- カード購入確認画面（ポイント選択後） -->
+            <div id="gift-point-confirm" style="display:none;position:absolute;inset:0;background:#282828;flex-direction:column;border-radius:inherit">
+              <div class="bs-header"><div class="bs-indicator"></div></div>
+              <div style="flex:1;overflow-y:auto;padding:16px">
+                <p style="font-size:16px;text-align:center;margin-bottom:24px">以下の内容でポイントを購入します。よろしいですか？</p>
+                <div class="item-row" style="margin-bottom:24px">
+                  <div class="item-left"><span class="coin coin-lg"></span><span class="item-name" id="gift-plan-pt">1,000</span></div>
+                  <div class="item-price" id="gift-plan-price">¥1,000</div>
+                </div>
+                <hr class="divider">
+                <span class="section-label">支払い方法</span>
+                <div class="radio-wrap">
+                  <div class="radio-option selected">
+                    <div class="radio-circle checked"></div>
+                    <div class="radio-body"><div class="radio-label">クレジットカード</div></div>
+                  </div>
+                  <div class="card-expand">
+                    <div class="card-select-wrap">
+                      <div class="card-select-trigger" tabindex="0" onclick="toggleDropdown('gift-dd')" onkeydown="if(event.key==='Enter')toggleDropdown('gift-dd')">
+                        <div class="card-info"><span class="visa-badge">VISA</span><span class="card-number" id="gift-card-label">•••• •••• •••• 5444</span></div>
+                        <span class="card-arrow" id="gift-dd-arrow">▾</span>
+                      </div>
+                      <div class="card-dropdown" id="gift-dd">
+                        <div class="card-option selected" onclick="selectCard('gift','•••• •••• •••• 5444','gift-dd')"><span class="visa-badge">VISA</span><div style="display:inline-block;margin-left:8px"><div>•••• •••• •••• 5444</div><div style="font-size:11px;color:var(--smoke)">12/27 · KOHEI NAKAGAWA</div></div></div>
+                        <div class="card-option" onclick="selectCard('gift','•••• •••• •••• 9012','gift-dd')"><span class="visa-badge">VISA</span><div style="display:inline-block;margin-left:8px"><div>•••• •••• •••• 9012</div><div style="font-size:11px;color:var(--smoke)">08/26 · KOHEI NAKAGAWA</div></div></div>
+                        <div class="card-option add-new" onclick="openBridge('gift-bridge');closeDropdown('gift-dd')">+ 新しいカードを追加</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="button-area">
+                <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
+                <div class="btn-row">
+                  <button class="back-btn" onclick="document.getElementById('gift-point-confirm').style.display='none'"><span class="back-icon">‹</span><span>戻る</span></button>
+                  <button class="primary-btn partial" onclick="showModal('modal-gift-point')">ポイントを購入する</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 完了Modal -->
+          <div class="modal-overlay" id="modal-gift-point" style="border-radius:inherit">
+            <div class="modal-inner"><div class="modal-content">
+              <div class="modal-title">購入が完了しました</div>
+              <button class="modal-close" onclick="closeModal('modal-gift-point');closeGiftPointSheet()">閉じる</button>
+            </div></div>
+          </div>
+          <!-- カード追加画面 -->
+          <div class="create-card-overlay" id="gift-bridge">
+            <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
+            <div class="cc-header"><span style="width:32px"></span><span class="cc-header-title">カードを追加</span><span style="width:32px"></span></div>
+            <div class="cc-body">
+              <div class="stripe-card-wrap" id="gift-cc-wrap" onclick="this.querySelector('input').focus()">
+                <div class="stripe-card-mock">
+                  <input type="text" placeholder="1234 1234 1234 1234" maxlength="19" oninput="fmtCard(this)" onfocus="ccFocus('gift-cc-wrap')" onblur="ccBlur('gift-cc-wrap')" onchange="ccCheck('gift')">
+                  <span class="stripe-sep">|</span>
+                  <input class="stripe-expiry" type="text" placeholder="MM/YY" maxlength="5" oninput="fmtExpiry(this)" onfocus="ccFocus('gift-cc-wrap')" onblur="ccBlur('gift-cc-wrap')" onchange="ccCheck('gift')">
+                  <span class="stripe-sep">|</span>
+                  <input class="stripe-cvc" type="text" placeholder="CVC" maxlength="3" oninput="this.value=this.value.replace(/\D/g,'')" onfocus="ccFocus('gift-cc-wrap')" onblur="ccBlur('gift-cc-wrap')" onchange="ccCheck('gift')">
+                </div>
+              </div>
+            </div>
+            <div class="cc-footer"><button class="cc-add-btn" id="gift-cc-btn" disabled onclick="ccComplete('gift-bridge','modal-gift-add-card')">追加する</button></div>
+            <div class="modal-overlay" id="modal-gift-add-card"><div class="modal-inner"><div class="modal-content"><div class="modal-title">追加が完了しました</div><button class="modal-close" onclick="closeModal('modal-gift-add-card');closeBridge('gift-bridge')">閉じる</button></div></div></div>
+          </div>
         </div>
         <div class="modal-overlay" id="modal-gift"><div class="modal-inner"><div class="modal-content"><div class="modal-title">ギフトを送りました！</div><button class="modal-close" onclick="closeModal('modal-gift')">閉じる</button></div></div></div>
       </div>
-      <span class="phone-label">ギフト（統一対象外）</span>
+        </div><!-- /bs-sheet -->
+      <span class="phone-label">ギフト<br>BottomSheet構造</span>
     </div>
   </div>
 
@@ -1171,6 +1357,11 @@
     document.getElementById(`${screen}-used`).textContent = used.toLocaleString();
     const creditEl = document.getElementById(`${screen}-credit`);
     if(creditEl) creditEl.textContent = (screen==='store'?'¥':'')+remain.toLocaleString()+(screen==='sl'?'円':'');
+    // SLフッター合計も更新
+    if(screen==='sl'){
+      const footerTotal = document.getElementById('sl-total-footer');
+      if(footerTotal) footerTotal.textContent = remain.toLocaleString()+'円';
+    }
     document.getElementById(`${screen}-method`).classList.toggle('grayout', isOnly);
     const banner = document.getElementById(`${screen}-ptonly`);
     banner.classList.toggle('show', isOnly);
@@ -1260,7 +1451,7 @@
   function eventNext(){
     document.getElementById('event-step1').style.display = 'none';
     document.getElementById('event-footer1').style.display = 'none';
-    document.getElementById('event-step2').style.display = '';
+    document.getElementById('event-step2').style.display = 'flex';
     document.getElementById('event-footer2').style.display = '';
     document.getElementById('event-title').textContent = 'イベント申込';
     eventStep = 2;
@@ -1270,6 +1461,7 @@
       document.getElementById('event-step1').style.display = '';
       document.getElementById('event-footer1').style.display = '';
       document.getElementById('event-step2').style.display = 'none';
+      document.getElementById('event-step2').style.flexDirection = 'column';
       document.getElementById('event-footer2').style.display = 'none';
       document.getElementById('event-title').textContent = 'イベント詳細';
       eventStep = 1;
@@ -1293,11 +1485,41 @@
     document.getElementById('supporters-dec-btn').style.opacity = supQty <= 1 ? '0.3' : '1';
   }
 
+  // ── ギフト ポイント購入シート ──
+  function openGiftPointSheet(){
+    const sheet = document.getElementById('gift-point-sheet');
+    sheet.style.display = 'block';
+  }
+  function closeGiftPointSheet(){
+    document.getElementById('gift-point-sheet').style.display = 'none';
+    document.getElementById('gift-point-confirm').style.display = 'none';
+  }
+  function giftSelectPlan(el, pt, price){
+    // 選択中カードのボーダーをリセット
+    el.closest('#gift-point-sheet').querySelectorAll('.item-card').forEach(c => {
+      c.style.border = 'none';
+    });
+    el.style.border = '1.5px solid var(--main)';
+    // 確認画面のプラン情報を更新して表示
+    document.getElementById('gift-plan-pt').textContent = pt;
+    document.getElementById('gift-plan-price').textContent = price;
+    document.getElementById('gift-point-confirm').style.display = 'flex';
+  }
+
   // ── Gift ──
-  function giftTab(btn,id){
-    document.querySelectorAll('#gift .tab-item').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    ['ga','go','gh'].forEach(i=>document.getElementById(i).style.display=i===id?'':'none');
+  function giftTab(btn, id){
+    document.querySelectorAll('#gift .tab-item').forEach(b => {
+      b.style.color = 'var(--light-gray)';
+      b.style.borderBottom = '4px solid transparent';
+      b.style.fontWeight = '';
+    });
+    btn.style.color = 'var(--white)';
+    btn.style.borderBottom = '4px solid var(--main)';
+    btn.style.fontWeight = '700';
+    ['ga','gh','gl','gc','gs','gm'].forEach(i => {
+      const el = document.getElementById(i);
+      if(el) el.style.display = i===id ? '' : 'none';
+    });
   }
   function selGift(el){
     document.querySelectorAll('.gift-item').forEach(g=>g.classList.remove('selected'));
