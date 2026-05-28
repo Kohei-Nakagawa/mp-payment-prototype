@@ -748,31 +748,105 @@
     </div>
   </div>
 
-  <!-- ④ イベント申込（ポイントのみ） -->
+  <!-- ④ イベント申込（詳細→支払い確認の2画面遷移） -->
   <div id="event" class="screen">
     <div class="phone-wrap">
       <div class="phone">
         <div class="status-bar"><span class="status-time">10:01</span><span>●●● WiFi 🔋</span></div>
         <div class="wv-header">
-          <button class="wv-back">‹</button>
-          <span class="wv-title">イベント申込</span>
+          <button class="wv-back" id="event-back-btn" onclick="eventBack()">‹</button>
+          <span class="wv-title" id="event-title">イベント詳細</span>
           <span class="wv-spacer"></span>
         </div>
-        <div class="screen-body">
+
+        <!-- Step1: イベント詳細ページ -->
+        <div class="screen-body" id="event-step1">
+          <!-- サムネイル -->
+          <div style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border-radius:12px;height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--smoke);font-size:13px;">サムネイル画像</div>
+
+          <!-- タイトル・申込ボタン -->
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px">
+            <div style="font-size:15px;font-weight:400;line-height:1.6;flex:1">LIVE & COMMENTARY PROJECT<br>ファンミーティング 2026</div>
+            <button onclick="eventNext()"
+              style="flex-shrink:0;height:40px;padding:0 16px;background:var(--sv-grad);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;border-radius:0;white-space:nowrap">申込む</button>
+          </div>
+
+          <hr class="divider">
+
+          <!-- 開催日時 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:4px">開催日時</div>
+            <div style="font-size:15px">2026.8.10 (月) 16:00 〜 21:00</div>
+            <div style="font-size:12px;color:var(--smoke);margin-top:2px">[開場] 15:30</div>
+          </div>
+
+          <!-- 募集終了日時 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:4px">募集終了日時</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:15px">2026.8.3 (日) 23:59</span>
+              <span style="font-size:13px;color:var(--main)">残り2日と14時間</span>
+            </div>
+          </div>
+
+          <!-- 参加費用 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:4px">参加費用</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700">
+              <span class="coin coin-md"></span>1,000pt
+            </div>
+          </div>
+
+          <!-- 場所 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:4px">場所</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:15px">
+              📍 東京都渋谷区1-2-3-4 カフェラウンジ
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <!-- 詳細 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:4px">詳細</div>
+            <div style="font-size:13px;color:var(--smoke);line-height:1.7">MP卒業生対象の交流会になります。ざっくばらんにお話いただいたり、音楽活動に関する意見交換を行うことができます！</div>
+          </div>
+
+          <!-- 申込者 -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:var(--smoke);margin-bottom:8px">申込者（22人）</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="display:flex">
+                <div style="width:24px;height:24px;border-radius:50%;background:#555;border:1px solid var(--black)"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#444;border:1px solid var(--black);margin-left:-6px"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#666;border:1px solid var(--black);margin-left:-6px"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#333;border:1px solid var(--black);margin-left:-6px"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#777;border:1px solid var(--black);margin-left:-6px"></div>
+              </div>
+              <span style="font-size:12px;color:var(--smoke)">+17人</span>
+              <span style="margin-left:auto;font-size:20px;color:var(--smoke)">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="button-area" id="event-footer1" style="padding:16px 16px 32px">
+          <button onclick="eventNext()" class="primary-btn full">申込む</button>
+        </div>
+
+        <!-- Step2: 支払い確認 -->
+        <div class="screen-body" id="event-step2" style="display:none">
           <p style="font-size:16px;text-align:center;margin-bottom:8px">以下の内容でイベントに申込みますか？</p>
           <div class="caption" style="justify-content:center;margin-bottom:20px">
             <span class="caption-icon">ℹ</span>
             <span class="caption-text">申込後、キャンセルはできません</span>
           </div>
 
-          <!-- イベント情報カード -->
           <div class="item-card">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#185FA5;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">東京</span>
-              <span style="font-size:14px">ファンミーティング 2026</span>
+            <div style="font-size:14px;margin-bottom:4px">LIVE & COMMENTARY PROJECT<br>ファンミーティング 2026</div>
+            <div style="font-size:12px;color:var(--smoke);margin-bottom:8px">2026.8.10 (月) 16:00〜</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--smoke);margin-bottom:12px">
+              📍 東京都渋谷区1-2-3-4
             </div>
-            <div style="font-size:12px;color:var(--smoke);margin-bottom:4px">2026/08/10 (日) 14:00〜</div>
-            <div style="font-size:12px;color:var(--smoke);margin-bottom:12px">渋谷区文化総合センター大和田</div>
             <hr class="divider" style="margin:8px 0">
             <div style="display:flex;align-items:center;justify-content:space-between">
               <span style="font-size:13px;color:var(--smoke)">参加費</span>
@@ -784,7 +858,6 @@
 
           <hr class="divider">
 
-          <!-- ポイント利用セクション -->
           <span class="section-label">ポイント利用</span>
           <div class="point-balance-row">
             <span style="font-size:14px;color:var(--smoke)">保有ポイント</span>
@@ -796,7 +869,6 @@
             </div>
           </div>
 
-          <!-- お支払いサマリー -->
           <div class="payment-summary">
             <div class="summary-row" style="margin-top:8px">
               <span class="summary-total-label">お支払い合計</span>
@@ -807,11 +879,10 @@
             </div>
           </div>
         </div>
-
-        <div class="button-area">
+        <div class="button-area" id="event-footer2" style="display:none">
           <button class="commercial-btn">📋 特定商取引法に基づく表記</button>
           <div class="btn-row">
-            <button class="back-btn"><span class="back-icon">‹</span><span>戻る</span></button>
+            <button class="back-btn" onclick="eventBack()"><span class="back-icon">‹</span><span>戻る</span></button>
             <button class="primary-btn partial" onclick="showModal('modal-event')">申込む</button>
           </div>
         </div>
@@ -820,11 +891,11 @@
           <div class="modal-inner"><div class="modal-content">
             <div class="modal-title">申込が完了しました</div>
             <div class="modal-body">抽選結果はメールおよびアプリ内通知にてお知らせします。</div>
-            <button class="modal-close" onclick="closeModal('modal-event')">閉じる</button>
+            <button class="modal-close" onclick="closeModal('modal-event');eventReset()">閉じる</button>
           </div></div>
         </div>
       </div>
-      <span class="phone-label">EventDetail（ポイントのみ）</span>
+      <span class="phone-label">イベント申込（詳細→支払い確認）</span>
     </div>
   </div>
 
@@ -1183,6 +1254,28 @@
     voiceStep = 1;
     voiceBack();
   }
+
+  // ── イベント 画面内遷移 ──
+  let eventStep = 1;
+  function eventNext(){
+    document.getElementById('event-step1').style.display = 'none';
+    document.getElementById('event-footer1').style.display = 'none';
+    document.getElementById('event-step2').style.display = '';
+    document.getElementById('event-footer2').style.display = '';
+    document.getElementById('event-title').textContent = 'イベント申込';
+    eventStep = 2;
+  }
+  function eventBack(){
+    if(eventStep === 2){
+      document.getElementById('event-step1').style.display = '';
+      document.getElementById('event-footer1').style.display = '';
+      document.getElementById('event-step2').style.display = 'none';
+      document.getElementById('event-footer2').style.display = 'none';
+      document.getElementById('event-title').textContent = 'イベント詳細';
+      eventStep = 1;
+    }
+  }
+  function eventReset(){ eventStep = 1; eventBack(); }
 
   // ── MP+SUPPORTERS 数量選択 ──
   let supQty = 1;
